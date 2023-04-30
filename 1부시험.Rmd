@@ -1,0 +1,74 @@
+---
+title: "1부시험"
+author: "경제학과 2020110210 공소연"
+date: "2022-12-13"
+output:
+  html_document: default
+  word_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+
+```{r cars}
+rm(list = ls())
+
+data <- read.table("data2020.csv", header=T, sep=",")
+mydata <- subset(data, data$age<30 & data$edu==3 & data$ind=="C")
+attach(mydata)
+library(sandwich); library(lmtest); library(car)
+
+Y <- income
+X <- age
+X2 <- age^2
+R <- as.numeric(regular==1)
+M <- as.numeric(sex==1)
+RM <- R*M
+RX <- R*X
+RX2 <- R*X2
+MX <- M*X
+MX2 <- M*X2
+
+# (A)
+fit <- lm(Y~X+X2+R+M)
+v = vcovHC(fit)
+b <- round(coef(fit),3)
+round(coeftest(fit,v=v), digit=3)
+summary(fit)
+round(sqrt(diag(v)),3)
+b[1]+b[2]*30+b[3]*(30^2) # 30세 비정규직 여성
+b[1]+b[2]*30+b[3]*(30^2)+b[5]*1 # 30세 비정규직 남성
+b[1]+b[2]*30+b[3]*(30^2)+b[4]*1 # 30세 정규직 여성
+b[1]+b[2]*30+b[3]*(30^2)+b[4]*1+b[5]*1+b[6]*1*1 # 30세 정규직 남성
+
+# (B)
+fit <- lm(Y~X+X2+R+M+RM)
+v = vcovHC(fit)
+b <- round(coef(fit),3)
+round(coeftest(fit,v=v), digit=3)
+summary(fit)
+round(sqrt(diag(v)),3)
+b[1]+b[2]*30+b[3]*(30^2) # 30세 비정규직 여성
+b[1]+b[2]*30+b[3]*(30^2)+b[5]*1 # 30세 비정규직 남성
+b[1]+b[2]*30+b[3]*(30^2)+b[4]*1 # 30세 정규직 여성
+b[1]+b[2]*30+b[3]*(30^2)+b[4]*1+b[5]*1+b[6]*1*1 # 30세 정규직 남성
+
+# (C)
+fit <- lm(Y~X+X2+R+M+RM+RX+RX2+MX+MX2)
+v = vcovHC(fit)
+b <- round(coef(fit),3)
+round(coeftest(fit,v=v), digit=3)
+summary(fit)
+round(sqrt(diag(v)),3)
+b[1]+b[2]*30+b[3]*(30^2) # 30세 비정규직 여성
+b[1]+b[2]*30+b[3]*(30^2)+b[5]*1+b[9]*1*30+b[10]*1*(30^2) # 30세 비정규직 남성
+b[1]+b[2]*30+b[3]*(30^2)+b[4]*1+b[7]*1*30+b[8]*1*(30^2) # 30세 정규직 여성
+b[1]+b[2]*30+b[3]*(30^2)+b[4]*1+b[5]*1+b[6]*1*1+
+  b[7]*1*30+b[8]*1*(30^2)+b[9]*1*30+b[10]*1*(30^2)# 30세 정규직 남성
+
+linearHypothesis(fit,v=v,c("X=0","X2=0","R=0","M=0","RM=0",
+                           "RX=0","RX2=0","MX=0","MX2=0"))
+```
+

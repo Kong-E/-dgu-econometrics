@@ -1,0 +1,66 @@
+---
+title: "계량경제학 과제3"
+author: "경제학과 2020110210 공소연"
+date: "2022-11-24"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## 1
+
+```{r}
+data <- read.table("data2018.csv", header=T, sep=",")
+mydata <- subset(data, data$age<30 & data$ind=="K"); attach(mydata)
+library(sandwich); library(lmtest)
+
+educ <- NULL
+educ[edu==0] <- 4; educ[edu==1] <- 6;
+educ[edu==2] <- 9; educ[edu==3] <- 12;
+educ[edu==4] <- 14; educ[edu==5] <- 16;
+educ[edu==6] <- 18; educ[edu==7] <- 21
+
+exper <- age - educ - 6
+col <- as.numeric(edu > 3)
+
+## 1
+fit <- lm(income~exper)
+b <- coef(fit); b
+v0 <- vcov(fit); v0
+v1 <- vcovHC(fit); v1
+s <- sqrt(diag(v1))
+s[1]; s[2]
+round(c(b[2]-1.96*s[2], b[2]+1.96*s[2]), digit=3)
+```
+
+## 2
+
+```{r}
+exper2 <- exper^2
+fit <- lm(income~exper+exper2)
+b <- coef(fit); b
+
+c((b[1]+b[2]*1+b[3]*1)-b[1], 
+  (b[1]+b[2]*10+b[3]*10^2)-(b[1]+b[2]*9+b[3]*9^2))
+```
+
+## 3
+
+```{r}
+fit <- lm(income~exper+col)
+b <- coef(fit); b
+b[1]+b[2]*0+b[3]*1
+b[1]+b[2]*5+b[3]*0
+```
+
+## 4
+
+```{r}
+fit <- lm(log(income)~exper+col)
+b <- coef(fit); b
+v <- vcovHC(fit); s <- sqrt(diag(v))
+(b[3]-0.05)/s[3]
+# 1.597 < 1.645 이므로 5%보다 크다고 할 수 없다.
+```

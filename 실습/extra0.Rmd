@@ -1,0 +1,58 @@
+---
+title: "Extra0"
+author: "경제학과 2020110210 공소연"
+date: "2022-10-02"
+output:
+  word_document: default
+  html_document:
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## 2-1
+
+```{r 2-1}
+data <- read.table('C:/Users/sy/Downloads/econo/data2020.csv', header=T, sep=",");
+data1 <- subset(data, data$ind=="C"); attach(data1)
+
+y <- income
+n <- length(y)
+m <- mean(y)
+sem <- sd(y)/sqrt(n)
+round(c(m-1.96*sem, m+1.96*sem), digit=2)
+t.test(y, mu=250, alternative = "greater")
+```
+t값이 5%의 유의수준에 해당하는 임계치 1.645 보다 크므로 귀무가설을 기각한다.
+
+## 2-2
+
+```{r 2-2}
+educ <- NULL
+educ[edu==0] <- 4; educ[edu==1] <- 6; educ[edu==2] <- 9; educ[edu==3] <- 12;
+educ[edu==4] <- 14; educ[edu==5] <- 16; educ[edu==6] <- 18; educ[edu==7] <- 21;
+exper <- age - educ - 6
+mydata <- data.frame(data1,educ,exper); attach(mydata)
+
+y <- exper
+n <- length(y)
+m <- mean(y)
+sem <- sd(y)/sqrt(n)
+round(c(m-2.58*sem, m+2.58*sem), digit=2)
+t.test(y, mu=28, alternative = "less", conf.level = 0.99)
+```
+t값이 1%의 유의수준에 해당하는 임계치 -2.326 보다 작으므로 귀무가설을 기각한다.
+
+## 2-3
+
+```{r 2-3}
+y <- as.numeric(regular==1)
+n <- length(y)
+m <- mean(y)
+sem <- sd(y)/sqrt(n)
+round(c(m-1.645*sem, m+1.645*sem), digit=2)
+t.test(y, mu=0.6, alternative = "two.sided")
+```
+t의 절대값이 5%의 유의수준에 해당하는 임계치 1.96 보다 크므로 귀무가설을 기각한다.
